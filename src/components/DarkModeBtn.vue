@@ -1,14 +1,15 @@
 <template>
-  <q-btn push @click="dark.toggle()" :label="label" color="white" text-color="primary" />
+  <q-btn push :label="label" color="white" text-color="primary" @click="dark.toggle()" />
 </template>
 
 <script lang="ts" setup>
 import { useQuasar } from 'quasar';
+import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 
-const { t } = useI18n()
+const { t } = useI18n();
 
-const { dark } = useQuasar()
+const { dark } = useQuasar();
 
-const label = dark.isActive ? t('dark') : t('light')
+const label = computed(() => (dark.isActive ? t('light') : t('dark')));
 </script>
