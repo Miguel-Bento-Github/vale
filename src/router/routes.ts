@@ -1,18 +1,29 @@
 import type { RouteRecordRaw } from 'vue-router';
 
-const routes: RouteRecordRaw[] = [
-  {
-    path: '/',
-    component: () => import('layouts/MainLayout.vue'),
-    children: [{ path: '', component: () => import('pages/IndexPage.vue') }],
-  },
+const home = {
+  path: '/',
+  component: () => import('layouts/MainLayout.vue'),
+  children: [{ path: '', component: () => import('pages/IndexPage.vue') }],
+}
 
-  // Always leave this as last one,
-  // but you can also remove it
-  {
-    path: '/:catchAll(.*)*',
-    component: () => import('pages/ErrorNotFound.vue'),
-  },
+const geoLocation = {
+  path: '/geolocation',
+  component: () => import('pages/GeoLocation.vue')
+}
+
+const cameraControl = {
+  path: '/camera',
+  component: () => import('pages/CameraControl.vue')
+}
+
+const notFound = {
+  path: '/:catchAll(.*)*',
+  component: () => import('pages/ErrorNotFound.vue'),
+}
+
+export const routes: RouteRecordRaw[] = [
+  home,
+  geoLocation,
+  cameraControl,
+  notFound
 ];
-
-export default routes;

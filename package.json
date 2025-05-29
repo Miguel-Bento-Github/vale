@@ -16,7 +16,10 @@
     "postinstall": "quasar prepare"
   },
   "dependencies": {
+    "@capacitor/camera": "^7.0.1",
+    "@capacitor/geolocation": "^7.1.2",
     "@quasar/extras": "^1.16.4",
+    "install": "^0.13.0",
     "pinia": "^3.0.1",
     "postcss-rtlcss": "^5.7.1",
     "quasar": "^2.16.0",

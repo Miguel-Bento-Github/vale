@@ -21,7 +21,7 @@
     </q-header>
 
     <q-drawer v-model="rightDrawerOpen" side="right" behavior="mobile" bordered>
-      <!-- drawer content -->
+      <DarkModeBtn />
     </q-drawer>
 
     <q-page-container>
@@ -32,6 +32,8 @@
 </template>
 
 <script lang="ts" setup>
+
+import DarkModeBtn from 'src/components/DarkModeBtn.vue';
 import { ref } from 'vue';
 
 const rightDrawerOpen = ref(false)
