@@ -33,16 +33,16 @@
 </template>
 
 <script lang="ts" setup>
-import DarkModeBtn from 'src/components/DarkModeBtn.vue';
-import { ref } from 'vue';
-import { useRouter } from 'vue-router';
-const router = useRouter();
-const routes = router.getRoutes();
-const viewRoutes = routes.filter((route) => route.meta?.title);
+import DarkModeBtn from 'src/components/DarkModeBtn.vue'
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+const router = useRouter()
+const routes = router.getRoutes()
+const viewRoutes = routes.filter((route) => route.meta?.title)
 
-const rightDrawerOpen = ref(false);
+const rightDrawerOpen = ref(false)
 
 function toggleRightDrawer() {
-  rightDrawerOpen.value = !rightDrawerOpen.value;
+  rightDrawerOpen.value = !rightDrawerOpen.value
 }
 </script>

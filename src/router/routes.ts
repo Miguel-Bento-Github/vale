@@ -1,4 +1,4 @@
-import type { RouteRecordRaw } from 'vue-router';
+import type { RouteRecordRaw } from 'vue-router'
 
 const home = {
   path: '/',
@@ -11,7 +11,7 @@ const home = {
       component: () => import('pages/IndexPage.vue'),
     },
   ],
-};
+}
 
 const geoLocation = {
   path: '/geolocation',
@@ -24,7 +24,7 @@ const geoLocation = {
       component: () => import('pages/GeoLocation.vue'),
     },
   ],
-};
+}
 
 const cameraControl = {
   path: '/camera',
@@ -37,11 +37,11 @@ const cameraControl = {
       component: () => import('pages/CameraControl.vue'),
     },
   ],
-};
+}
 
 const notFound = {
   path: '/:catchAll(.*)*',
   component: () => import('pages/ErrorNotFound.vue'),
-};
+}
 
-export const routes: RouteRecordRaw[] = [home, geoLocation, cameraControl, notFound];
+export const routes: RouteRecordRaw[] = [home, geoLocation, cameraControl, notFound]
