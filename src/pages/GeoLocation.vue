@@ -3,7 +3,7 @@
     <div class="column q-gutter-md items-center">
       <!-- Geolocation Section -->
       <div class="q-pa-md">
-        <h6 class="q-ma-none">GPS Position:</h6>
+        <h6 class="q-ma-none">{{ $t('gpsPosition') }}:</h6>
         <strong>
           <pre>{{ position ? position : 'determining...' }}</pre>
         </strong>
@@ -11,12 +11,12 @@
 
       <!-- Geolocation Controls -->
       <div class="column q-gutter-md items-center">
-        <q-btn color="primary" label="Get Current Position" @click="getCurrentPosition" />
-        <q-btn color="secondary" label="Start Watching Position" @click="startWatchingPosition" />
-        <q-btn color="negative" label="Stop Watching Position" @click="stopWatchingPosition" />
+        <q-btn color="primary" :label="$t('getCurrentPosition')" @click="getCurrentPosition" />
+        <q-btn color="secondary" :label="$t('startWatching')" @click="startWatchingPosition" />
+        <q-btn color="negative" :label="$t('stopWatching')" @click="stopWatchingPosition" />
         <q-btn
           color="accent"
-          label="Check Location Permissions"
+          :label="$t('checkLocationPermissions')"
           @click="checkLocationPermissions"
         />
 
@@ -25,18 +25,20 @@
             :color="permissionStatus.location === 'granted' ? 'green' : 'red'"
             text-color="white"
           >
-            Location: {{ permissionStatus.location }}
+            {{ $t('location') }}: {{ permissionStatus.location }}
           </q-chip>
           <q-chip
             :color="permissionStatus.coarseLocation === 'granted' ? 'green' : 'red'"
             text-color="white"
           >
-            Coarse Location: {{ permissionStatus.coarseLocation }}
+            {{ $t('coarseLocation') }}: {{ permissionStatus.coarseLocation }}
           </q-chip>
         </div>
 
         <div v-if="isWatching" class="q-mt-md">
-          <q-chip color="blue" text-color="white" icon="gps_fixed"> Watching Position </q-chip>
+          <q-chip color="blue" text-color="white" icon="gps_fixed">
+            {{ $t('watchingPosition') }}
+          </q-chip>
         </div>
       </div>
     </div>
@@ -48,25 +50,30 @@ import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { Geolocation, type Position, type PermissionStatus } from '@capacitor/geolocation'
 import { Capacitor } from '@capacitor/core'
 import { useQuasar } from 'quasar'
+import { useI18n } from 'vue-i18n'
 
 const $q = useQuasar()
+const { t } = useI18n()
 
 // Geolocation refs
 const position = ref<Position>()
 const permissionStatus = ref<PermissionStatus | null>(null)
 const isWatching = ref<boolean>(false)
 
+// Geolocation permission handling
 const ensureLocationPermissions = async (): Promise<boolean> => {
   try {
+    // Only request permissions on native platforms
     if (Capacitor.isNativePlatform()) {
       let permissions = await Geolocation.checkPermissions()
       permissionStatus.value = permissions
 
       if (permissions.location !== 'granted') {
         $q.notify({
-          message: 'Requesting location permissions...',
+          message: t('requestingLocationPermissions'),
           type: 'info',
           position: 'top',
+          actions: [{ icon: 'close', color: 'white' }],
         })
 
         permissions = await Geolocation.requestPermissions()
@@ -75,9 +82,10 @@ const ensureLocationPermissions = async (): Promise<boolean> => {
 
       if (permissions.location !== 'granted') {
         $q.notify({
-          message: 'Location permissions are required to use this feature',
+          message: t('locationPermissionsRequired'),
           type: 'negative',
           position: 'top',
+          actions: [{ icon: 'close', color: 'white' }],
         })
         return false
       }
@@ -88,9 +96,10 @@ const ensureLocationPermissions = async (): Promise<boolean> => {
   } catch (error) {
     console.error('Error checking location permissions:', error)
     $q.notify({
-      message: 'Error checking location permissions',
+      message: t('errorCheckingLocationPermissions'),
       type: 'negative',
       position: 'top',
+      actions: [{ icon: 'close', color: 'white' }],
     })
     return false
   }
@@ -103,23 +112,29 @@ const checkLocationPermissions = async (): Promise<void> => {
       permissionStatus.value = permissions
 
       $q.notify({
-        message: `Location: ${permissions.location}, Coarse: ${permissions.coarseLocation}`,
+        message: t('locationPermissionsStatus', {
+          location: permissions.location,
+          coarse: permissions.coarseLocation,
+        }),
         type: 'info',
         position: 'top',
+        actions: [{ icon: 'close', color: 'white' }],
       })
     } else {
       $q.notify({
-        message: 'Running on web - permissions handled automatically',
+        message: t('webPermissionsHandled'),
         type: 'info',
         position: 'top',
+        actions: [{ icon: 'close', color: 'white' }],
       })
     }
   } catch (error) {
     console.error('Error checking permissions:', error)
     $q.notify({
-      message: 'Error checking permissions',
+      message: t('errorCheckingPermissions'),
       type: 'negative',
       position: 'top',
+      actions: [{ icon: 'close', color: 'white' }],
     })
   }
 }
@@ -137,16 +152,18 @@ async function getCurrentPosition(): Promise<void> {
     console.log('Current position:', newPosition)
     position.value = newPosition
     $q.notify({
-      message: 'GPS position updated successfully!',
+      message: t('positionUpdated'),
       type: 'positive',
       position: 'top',
+      actions: [{ icon: 'close', color: 'white' }],
     })
   } catch (error) {
     console.error('Error getting current position:', error)
     $q.notify({
-      message: 'Error getting GPS position',
+      message: t('errorGettingPosition'),
       type: 'negative',
       position: 'top',
+      actions: [{ icon: 'close', color: 'white' }],
     })
   }
 }
@@ -162,9 +179,10 @@ const startWatchingPosition = async (): Promise<void> => {
 
   if (isWatching.value) {
     $q.notify({
-      message: 'Already watching position',
+      message: t('alreadyWatching'),
       type: 'warning',
       position: 'top',
+      actions: [{ icon: 'close', color: 'white' }],
     })
     return
   }
@@ -175,34 +193,38 @@ const startWatchingPosition = async (): Promise<void> => {
       if (newPosition) {
         position.value = newPosition
         $q.notify({
-          message: 'Position updated',
+          message: t('positionUpdate'),
           type: 'positive',
           position: 'top',
           timeout: 1000,
+          actions: [{ icon: 'close', color: 'white' }],
         })
       }
       if (err) {
         console.error('Watch position error:', err)
         $q.notify({
-          message: 'Error watching position',
+          message: t('errorWatchingPosition'),
           type: 'negative',
           position: 'top',
+          actions: [{ icon: 'close', color: 'white' }],
         })
       }
     })
 
     isWatching.value = true
     $q.notify({
-      message: 'Started watching position',
+      message: t('startedWatching'),
       type: 'info',
       position: 'top',
+      actions: [{ icon: 'close', color: 'white' }],
     })
   } catch (error) {
     console.error('Error setting up watch position:', error)
     $q.notify({
-      message: 'Error setting up position watching',
+      message: t('errorSetupWatching'),
       type: 'negative',
       position: 'top',
+      actions: [{ icon: 'close', color: 'white' }],
     })
   }
 }
@@ -210,9 +232,10 @@ const startWatchingPosition = async (): Promise<void> => {
 const stopWatchingPosition = async (): Promise<void> => {
   if (!isWatching.value || !watchId) {
     $q.notify({
-      message: 'Not currently watching position',
+      message: t('notWatching'),
       type: 'warning',
       position: 'top',
+      actions: [{ icon: 'close', color: 'white' }],
     })
     return
   }
@@ -221,21 +244,22 @@ const stopWatchingPosition = async (): Promise<void> => {
     await Geolocation.clearWatch({ id: watchId })
     isWatching.value = false
     $q.notify({
-      message: 'Stopped watching position',
+      message: t('stoppedWatching'),
       type: 'info',
       position: 'top',
+      actions: [{ icon: 'close', color: 'white' }],
     })
   } catch (error) {
     console.error('Error stopping watch position:', error)
     $q.notify({
-      message: 'Error stopping position watch',
+      message: t('errorStoppingWatch'),
       type: 'negative',
       position: 'top',
+      actions: [{ icon: 'close', color: 'white' }],
     })
   }
 }
 
-// Lifecycle hooks for geolocation
 onMounted(async () => {
   await getCurrentPosition()
   await startWatchingPosition()
