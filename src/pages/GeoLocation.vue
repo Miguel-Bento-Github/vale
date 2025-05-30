@@ -55,15 +55,12 @@ import { useI18n } from 'vue-i18n'
 const $q = useQuasar()
 const { t } = useI18n()
 
-// Geolocation refs
 const position = ref<Position>()
 const permissionStatus = ref<PermissionStatus | null>(null)
 const isWatching = ref<boolean>(false)
 
-// Geolocation permission handling
 const ensureLocationPermissions = async (): Promise<boolean> => {
   try {
-    // Only request permissions on native platforms
     if (Capacitor.isNativePlatform()) {
       let permissions = await Geolocation.checkPermissions()
       permissionStatus.value = permissions
@@ -72,7 +69,7 @@ const ensureLocationPermissions = async (): Promise<boolean> => {
         $q.notify({
           message: t('requestingLocationPermissions'),
           type: 'info',
-          position: 'top',
+          position: 'bottom',
           actions: [{ icon: 'close', color: 'white' }],
         })
 
@@ -117,14 +114,14 @@ const checkLocationPermissions = async (): Promise<void> => {
           coarse: permissions.coarseLocation,
         }),
         type: 'info',
-        position: 'top',
+        position: 'bottom',
         actions: [{ icon: 'close', color: 'white' }],
       })
     } else {
       $q.notify({
         message: t('webPermissionsHandled'),
         type: 'info',
-        position: 'top',
+        position: 'bottom',
         actions: [{ icon: 'close', color: 'white' }],
       })
     }
@@ -139,7 +136,6 @@ const checkLocationPermissions = async (): Promise<void> => {
   }
 }
 
-// Geolocation functions
 async function getCurrentPosition(): Promise<void> {
   const hasPermissions = await ensureLocationPermissions()
 
@@ -154,7 +150,7 @@ async function getCurrentPosition(): Promise<void> {
     $q.notify({
       message: t('positionUpdated'),
       type: 'positive',
-      position: 'top',
+      position: 'bottom-right',
       actions: [{ icon: 'close', color: 'white' }],
     })
   } catch (error) {
@@ -195,7 +191,7 @@ const startWatchingPosition = async (): Promise<void> => {
         $q.notify({
           message: t('positionUpdate'),
           type: 'positive',
-          position: 'top',
+          position: 'bottom-right',
           timeout: 1000,
           actions: [{ icon: 'close', color: 'white' }],
         })
@@ -215,7 +211,7 @@ const startWatchingPosition = async (): Promise<void> => {
     $q.notify({
       message: t('startedWatching'),
       type: 'info',
-      position: 'top',
+      position: 'bottom',
       actions: [{ icon: 'close', color: 'white' }],
     })
   } catch (error) {
@@ -246,7 +242,7 @@ const stopWatchingPosition = async (): Promise<void> => {
     $q.notify({
       message: t('stoppedWatching'),
       type: 'info',
-      position: 'top',
+      position: 'bottom',
       actions: [{ icon: 'close', color: 'white' }],
     })
   } catch (error) {
@@ -266,8 +262,6 @@ onMounted(async () => {
 })
 
 onBeforeUnmount(async () => {
-  if (watchId && isWatching.value) {
-    await stopWatchingPosition()
-  }
+  await stopWatchingPosition()
 })
 </script>
