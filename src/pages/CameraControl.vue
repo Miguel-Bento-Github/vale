@@ -38,11 +38,9 @@ import {
   type PermissionStatus,
 } from '@capacitor/camera'
 import { Capacitor } from '@capacitor/core'
-import { useQuasar } from 'quasar'
-import { useI18n } from 'vue-i18n'
+import { useNotifications } from '../composables/useNotifications'
 
-const $q = useQuasar()
-const { t } = useI18n()
+const { showError, showWarning, showInfo, showSuccess } = useNotifications()
 const imageSrc = ref<string>('')
 const permissionStatus = ref<PermissionStatus | null>(null)
 
@@ -60,13 +58,7 @@ const ensurePermissions = async (): Promise<boolean> => {
         permissions.photos !== 'granted' && permissions.photos !== 'limited'
 
       if (needsCameraPermission || needsPhotosPermission) {
-        $q.notify({
-          progress: true,
-          message: t('requestingCameraPermissions'),
-          type: 'info',
-          position: 'bottom',
-          actions: [{ icon: 'close', color: 'white' }],
-        })
+        showInfo('requestingCameraPermissions')
 
         try {
           permissions = await Camera.requestPermissions()
@@ -74,13 +66,7 @@ const ensurePermissions = async (): Promise<boolean> => {
           console.log('Permissions after request:', permissions)
         } catch (requestError) {
           console.error('Error requesting permissions:', requestError)
-          $q.notify({
-            progress: true,
-            message: t('permissionsFailed'),
-            type: 'negative',
-            position: 'top',
-            actions: [{ icon: 'close', color: 'white' }],
-          })
+          showError('permissionsFailed')
           return false
         }
       }
@@ -90,41 +76,23 @@ const ensurePermissions = async (): Promise<boolean> => {
       const photosGranted = permissions.photos === 'granted' || permissions.photos === 'limited'
 
       if (!cameraGranted || !photosGranted) {
-        $q.notify({
-          progress: true,
-          message: t('cameraPermissionsError', {
-            camera: permissions.camera,
-            photos: permissions.photos,
-          }),
-          type: 'negative',
-          position: 'top',
-          actions: [{ icon: 'close', color: 'white' }],
+        showError('cameraPermissionsError', {
+          camera: permissions.camera,
+          photos: permissions.photos,
         })
         return false
       }
 
       // Show limited photos warning
       if (permissions.photos === 'limited') {
-        $q.notify({
-          progress: true,
-          message: t('limitedPhotoAccess'),
-          type: 'warning',
-          position: 'top',
-          actions: [{ icon: 'close', color: 'white' }],
-        })
+        showWarning('limitedPhotoAccess')
       }
     }
 
     return true // On web, permissions are handled automatically
   } catch (error) {
     console.error('Error in ensurePermissions:', error)
-    $q.notify({
-      progress: true,
-      message: `${t('errorCheckingPermissions')}: ${error as string}`,
-      type: 'negative',
-      position: 'top',
-      actions: [{ icon: 'close', color: 'white' }],
-    })
+    showError('errorCheckingPermissions')
     return false
   }
 }
@@ -135,34 +103,16 @@ const checkCameraPermissions = async (): Promise<void> => {
       const permissions = await Camera.checkPermissions()
       permissionStatus.value = permissions
 
-      $q.notify({
-        progress: true,
-        message: t('cameraPermissionsStatus', {
-          camera: permissions.camera,
-          photos: permissions.photos,
-        }),
-        type: 'info',
-        position: 'bottom',
-        actions: [{ icon: 'close', color: 'white' }],
+      showInfo('cameraPermissionsStatus', {
+        camera: permissions.camera,
+        photos: permissions.photos,
       })
     } else {
-      $q.notify({
-        progress: true,
-        message: t('webPermissionsHandled'),
-        type: 'info',
-        position: 'bottom',
-        actions: [{ icon: 'close', color: 'white' }],
-      })
+      showInfo('webPermissionsHandled')
     }
   } catch (error) {
     console.error('Error checking permissions:', error)
-    $q.notify({
-      progress: true,
-      message: t('errorCheckingPermissions'),
-      type: 'negative',
-      position: 'top',
-      actions: [{ icon: 'close', color: 'white' }],
-    })
+    showError('errorCheckingPermissions')
   }
 }
 
@@ -183,23 +133,11 @@ const takePicture = async (): Promise<void> => {
 
     if (image.webPath) {
       imageSrc.value = image.webPath
-      $q.notify({
-        progress: true,
-        message: t('photoTaken'),
-        type: 'positive',
-        position: 'bottom-right',
-        actions: [{ icon: 'close', color: 'white' }],
-      })
+      showSuccess('photoTaken')
     }
   } catch (error) {
     console.error('Error taking photo:', error)
-    $q.notify({
-      progress: true,
-      message: t('errorTakingPhoto'),
-      type: 'negative',
-      position: 'top',
-      actions: [{ icon: 'close', color: 'white' }],
-    })
+    showError('errorTakingPhoto')
   }
 }
 
@@ -220,23 +158,11 @@ const selectPhoto = async (): Promise<void> => {
 
     if (image.webPath) {
       imageSrc.value = image.webPath
-      $q.notify({
-        progress: true,
-        message: t('photoSelected'),
-        type: 'positive',
-        position: 'bottom-right',
-        actions: [{ icon: 'close', color: 'white' }],
-      })
+      showSuccess('photoSelected')
     }
   } catch (error) {
     console.error('Error selecting photo:', error)
-    $q.notify({
-      progress: true,
-      message: t('errorSelectingPhoto'),
-      type: 'negative',
-      position: 'top',
-      actions: [{ icon: 'close', color: 'white' }],
-    })
+    showError('errorSelectingPhoto')
   }
 }
 </script>
